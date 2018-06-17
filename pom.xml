@@ -3,6 +3,19 @@
   <groupId>VSS-JEngine</groupId>
   <artifactId>VSS-JEngine</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>  
+    	<dependency>
+    		<groupId>org.lwjgl</groupId>
+    		<artifactId>lwjgl</artifactId>
+    		<version>3.1.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.slick2d</groupId>
+		    <artifactId>slick2d-core</artifactId>
+		    <version>1.0.2</version>
+		</dependency>
+  </dependencies>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
