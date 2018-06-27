@@ -1,8 +1,16 @@
 package uk.johndorman.main;
 
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferStrategy;
 
 import org.lwjgl.openal.AL;
+
+import uk.johndorman.GFX.Renderer;
+import uk.johndorman.enums.GameState;
+import uk.johndorman.lib.Vector2;
 
 /**
  * 
@@ -18,6 +26,13 @@ public class Game extends Canvas implements Runnable {
 	private static Game game = new Game();
 	private static Timer timer;
 	
+	public static GameState state;
+	public static Camera camera;
+	
+	private Controller controller;
+	private Renderer renderer;
+
+	
 	private boolean running = false;
 	private Thread thread;
 	
@@ -28,26 +43,49 @@ public class Game extends Canvas implements Runnable {
 		game.start();
 	}
 	
+	public static Game getInstance(){
+		return game;
+	}
 	
 	private void actionTick() {
-		
+		controller.tick();
+		camera.tick();
 	}
 	
 
 	private void renderTick() {
+		BufferStrategy bs = this.getBufferStrategy();
+		if(bs == null){
+			createBufferStrategy(3);
+			return;
+		}
 		
+		Graphics g = bs.getDrawGraphics();
+		Graphics2D g2d = (Graphics2D) g;
+		g.setColor(new Color(6, 0, 40));
+		g.fillRect(0,0,WIDTH,HEIGHT);
+		
+		g2d.translate(camera.position.x, camera.position.y);
+		renderer.render(g);
+		g2d.translate(-camera.position.x, -camera.position.y);
+		
+		g.dispose();
+		bs.show();
 	}
 	
 	@Override
 	public void run() {
-		init();
+		initialize();
 		
 		int frames = 0;
 		int ticks = 0;
 		long t = System.currentTimeMillis();
+		
 		/**
 		 * Main Game Loop
 		 */
+		state = GameState.MENU;
+		timer.lastFrameTime = System.nanoTime();
 		while(running){
 			timer.updateDelta(System.nanoTime());
 
@@ -61,8 +99,8 @@ public class Game extends Canvas implements Runnable {
 			frames++;
 			
 			if(System.currentTimeMillis() - t >= 1000){
-				updateFPSCount(ticks, frames);
 				t+=1000;
+				updateFPSCount(ticks, frames);
 				ticks = 0;
 				frames = 0;
 			}
@@ -75,12 +113,31 @@ public class Game extends Canvas implements Runnable {
 		Window.setTitle(TITLE + "    " + ticks + " Ticks,     FPS: " + frames);
 	}
 
-	private void init() {
+	private void initialize() {
+		/**
+		 * 
+		 */
+		renderer = new Renderer();
+		
+		/**
+		 * Sets the State Whilst loading
+		 */
+		state = GameState.LOAD;
+		
 		/**
 		 * Initialize the Timer
 		 * sets up the tick rate
 		 */
 		timer = new Timer(60.0);
+		
+		/**
+		 * 
+		 */
+		camera = new Camera(new Vector2(0,0));
+		
+		//TODO: Read Textures
+		//TODO: Read Level Data
+		//TODO: Read UI Data
 	}
 
 	private synchronized void start(){
@@ -105,5 +162,9 @@ public class Game extends Canvas implements Runnable {
 	}
 	public static void exit(){
 		game.stop();
+	}
+
+	public Controller getController() {
+		return controller;
 	}
 }
