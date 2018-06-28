@@ -13,13 +13,19 @@ public abstract class CollidableObject extends GameObject {
 	
 	Rectangle collider;
 	int width, height;
+	int mass;
 
 	public CollidableObject(int id) {
 		super(id);
 		width = (int) (position.x * scale.x);
 		height = (int) (position.y * scale.y);
 		
+		mass = 0;
 		collider.setBounds(position.getRoundedX(), position.getRoundedY(), width, height);
+	}
+	
+	public void setMass(int mass) {
+		this.mass = mass;
 	}
 
 	/**
@@ -53,8 +59,10 @@ public abstract class CollidableObject extends GameObject {
 		} else {
 			Vector2 movementClamp = new Vector2(nextPosition.x, nextPosition.y);
 			for(CollidableObject obj : collisions) {
-				movementClamp = updateVectors(obj, movementClamp);
-				onCollisionEnter(obj);
+				if(obj.mass > 0) {
+					movementClamp = updateVectors(obj, movementClamp);
+					onCollisionEnter(obj);
+				}
 			}
 			
 			//once collisions are solved
@@ -72,13 +80,11 @@ public abstract class CollidableObject extends GameObject {
 
 	private void calculuateCollisions(Rectangle nextPosition) {
 		collisions.clear();
-		/*
-		for(CollidableObject obj : Game.getInstance().getController().getcurrentLevel().getObjectsOfType(this.getClass().getName())){
-			if(nextPosition.intersects(obj.collider)){
+		for(CollidableObject (CollidableObject)obj : Game.getInstance().getController().getcurrentLevel().getObjectsOfType(this.getClass().getName())){
+			if(nextPosition.intersects((obj.collider)){
 				collisions.add(obj);
 			}
 		}
-		*/
 	}
 
 	public abstract void Update();
